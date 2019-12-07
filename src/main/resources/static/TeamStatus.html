@@ -1,122 +1,132 @@
 <!doctype html>
 <html>
 <head>
-    <title>Team Performance</title>
-    <script src="https://www.chartjs.org/dist/2.6.0/Chart.bundle.js"></script>
-    <script src="https://www.chartjs.org/samples/2.6.0/utils.js"></script>
-    <style>
-    canvas {
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        -ms-user-select: none;
-    }
-    </style>
-    <script type="text/javascript">
+	<title>Team Performance</title>
+	<script src="https://www.chartjs.org/dist/2.6.0/Chart.bundle.js"></script>
+	<script src="https://www.chartjs.org/samples/2.6.0/utils.js"></script>
+	<style>
+	canvas {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+	}
+	</style>
+	<script type="text/javascript">
+		
 	    window.randomScalingFactor = function() {
-	    	return (Math.random() > 5 ? 100 : 10) * Math.round(Math.random() * 10);
+	    	return (Math.round(Math.random() > 0.5 ? 1.0 : 0.4) * Math.round(Math.random() * 30));
 	    };
+	    
+	    function getRandomCounts(){
+	    	let week1 = [];
+	    	let week2 = [];
+	    	let week3 = [];
+	    	let week4 = [];
+	    	
+	    	for(let i=0;i<12;i++){
+	    		week1.push(randomScalingFactor());
+	    		week2.push(randomScalingFactor());
+	    		week3.push(randomScalingFactor());
+	    		week4.push(randomScalingFactor());
+	    	}
+	    	
+	    	let data = {
+	    		"week1": week1,
+	    		"week2": week2,
+	    		"week3": week3,
+	    		"week4": week4
+	    	};
+	    	
+	    	return data;
+	    }
+	    
+	    function getAverageCountsForEachMonth(data){
+	    	let result = [];
+	    	let avg = 0;
+	    	let total = 0;
+	    	for(let i=0;i<12;i++){
+	    		for(let key in data){
+	    			total += data[key][i];
+	    		}
+	    		avg = total/4;
+	    		result.push(avg);
+	    		avg = 0; total = 0;
+	    	}
+	    	return result;
+	    }
+	    
+	    function getMeanCountsForEachMonth(data){
+	    	let result = [];
+	    	for(let i=0;i<12;i++){
+	    		let low = 0;
+	    		let high = 0;
+	    		let state = true;
+	    		for(let key in data){
+	    			if(state){
+	    				low = data[key][i];
+	    				state = false;
+	    			}
+					low = Math.min(low, data[key][i]);
+					high = Math.max(high,data[key][i]);
+	    		}
+	    		console.log("Low: " + low);
+	    		console.log("High: " + high);
+	    		console.log("--------------------");
+	    		result.push((low+high)/2);
+	    		low = 0; high = 0;
+	    	}
+	    	return result;
+	    }
     </script>
 </head>
 <body>
-    <div style="width: 85%">
-        <canvas id="canvas"></canvas>
-    </div>
-    <button id="randomizeData">Randomize Data</button>
-    <script>
+	<div style="width: 85%">
+		<canvas id="canvas"></canvas>
+	</div>
+	
+	<script>
+		dataSets = getRandomCounts();
+		var averageCounts = getAverageCountsForEachMonth(dataSets);
+		var meanCounts = getMeanCountsForEachMonth(dataSets);
         var chartData = {
             labels: ["January", "February", "March", "April", "May", "June", "July","August","September","October","November","December"],
             datasets: [{
                 type: 'line',
                 label: 'Average',
-                borderColor: window.chartColors.blue,
+                borderColor: window.chartColors.red,
+                backgroundColor: window.chartColors.red,
                 borderWidth: 2,
                 fill: false,
-                data: [
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor()
-                ]
-            }, {
+                data: averageCounts
+            },{
+                type: 'line',
+                label: 'Mean',
+                borderColor: window.chartColors.blue,
+                backgroundColor: window.chartColors.blue,
+                borderWidth: 2,
+                fill: false,
+                data: meanCounts
+            }
+            , {
                 type: 'bar',
                 label: 'Week 1',
-                backgroundColor: window.chartColors.red,
-                data: [
-                	randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor()
-                ],
+                backgroundColor: '#bddcf0',
+                data: dataSets.week1
             }, {
                 type: 'bar',
                 label: 'Week 2',
-                backgroundColor: window.chartColors.green,
-                data: [
-                	randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor()
-                ]
+                backgroundColor: '#1500ff',	
+                data: dataSets.week2
             },{
                 type: 'bar',
                 label: 'Week 3',
-                backgroundColor: window.chartColors.yellow,
-                data: [
-                	randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor()
-                ]
+                backgroundColor: '#00ffc3',
+                data:dataSets.week3
             },{
                 type: 'bar',
                 label: 'Week 3',
-                backgroundColor: window.chartColors.orange,
-                data: [
-                	randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor(),
-                    randomScalingFactor()
-                ]
+                backgroundColor: '#004069',
+                data: dataSets.week4
             }]
 
         };
@@ -139,14 +149,6 @@
             });
         };
 
-        document.getElementById('randomizeData').addEventListener('click', function() {
-            chartData.datasets.forEach(function(dataset) {
-                dataset.data = dataset.data.map(function() {
-                    return randomScalingFactor();
-                });
-            });
-            window.myMixedChart.update();
-        });
     </script>
 </body>
 </html>
